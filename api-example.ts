@@ -20,8 +20,8 @@ export async function POST(request: NextRequest) {
 
     // Create shipment in database
     const supabase = getSupabaseClient();
-    const { data, error } = await supabase
-      .from('shipments')
+    const { data, error } = await (supabase
+      .from('shipments') as any)
       .insert([body])
       .select();
 
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get('status');
 
+    const supabase = getSupabaseClient();
     let query = supabase.from('shipments').select('*');
 
     if (status) {

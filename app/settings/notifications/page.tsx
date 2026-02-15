@@ -132,17 +132,34 @@ export default function NotificationSettingsPage() {
     }
   };
 
-  const handleViewHistory = () => {
-    const history = getNotificationHistory();
-    setNotificationHistory(history);
-    setShowHistory(true);
+  const handleViewHistory = async () => {
+    try {
+      setLoading(true);
+      // Get authenticated user's ID (you may need to adjust this based on your auth setup)
+      const history = await getNotificationHistory('', 50);
+      setNotificationHistory(history);
+      setShowHistory(true);
+    } catch (error) {
+      console.error('Error fetching history:', error);
+      toast.error('Failed to load notification history');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleClearHistory = () => {
+  const handleClearHistory = async () => {
     if (confirm('Are you sure you want to clear notification history?')) {
-      clearNotificationHistory();
-      setNotificationHistory([]);
-      toast.success('Notification history cleared');
+      try {
+        setLoading(true);
+        await clearNotificationHistory();
+        setNotificationHistory([]);
+        toast.success('Notification history cleared');
+      } catch (error) {
+        console.error('Error clearing history:', error);
+        toast.error('Failed to clear notification history');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

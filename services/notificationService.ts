@@ -485,3 +485,31 @@ export async function sendBulkNotifications(payloads: NotificationPayload[]): Pr
     payloads.map(payload => sendNotification(payload))
   );
 }
+
+// Clear notification history for a client
+export async function clearNotificationHistory(clientId?: string): Promise<void> {
+  try {
+    const client = getSupabaseClient();
+    
+    if (clientId) {
+      // Clear history for specific client
+      const { error } = await (client
+        .from('notification_logs') as any)
+        .delete()
+        .eq('client_id', clientId);
+      
+      if (error) throw new Error(`Error clearing history: ${error.message}`);
+    } else {
+      // Clear all history (admin function)
+      const { error } = await (client
+        .from('notification_logs') as any)
+        .delete()
+        .gt('id', 0);
+      
+      if (error) throw new Error(`Error clearing all history: ${error.message}`);
+    }
+  } catch (error) {
+    console.error('Error clearing notification history:', error);
+    throw error;
+  }
+}
