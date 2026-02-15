@@ -54,7 +54,7 @@ export const shipmentService = {
     const { data, error } = await (client
       .from('shipments') as any)
       .insert([{ ...shipmentData, tracking_no: trackingNo }])
-      .select() as Promise<{ data: any; error: any }>;
+      .select();
     if (error) throw new Error(`Error creating shipment: ${error.message}`);
     return (data?.[0] || {}) as any;
   },
@@ -66,7 +66,7 @@ export const shipmentService = {
       .from('shipments') as any)
       .update({ status, updated_at: new Date().toISOString() })
       .eq('tracking_no', trackingNo)
-      .select() as Promise<{ data: any; error: any }>;
+      .select();
     if (error) throw new Error(`Error updating shipment: ${error.message}`);
     return (data?.[0] || {}) as any;
   },
@@ -91,7 +91,7 @@ export const shipmentService = {
     const { data: photoData, error: photoError } = await (client
       .from('shipment_photos') as any)
       .insert([photoRecord])
-      .select() as Promise<{ data: any; error: any }>;
+      .select();
 
     if (photoError) throw new Error(`Error saving photo record: ${photoError.message}`);
     return (photoData?.[0] || {}) as any;

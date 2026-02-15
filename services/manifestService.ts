@@ -1,10 +1,11 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { Manifest } from '@/types';
 
 export const manifestService = {
   // Get all manifests
   async getAllManifests(agencyId: string, filters?: any) {
-    let query = supabase
+    const client = getSupabaseClient();
+    let query = client
       .from('manifests')
       .select(`
         *,
@@ -24,8 +25,9 @@ export const manifestService = {
 
   // Create manifest
   async createManifest(manifest: Omit<Manifest, 'created_at'>) {
-    const { data, error } = await supabase
-      .from('manifests')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('manifests') as any)
       .insert([manifest])
       .select();
     if (error) throw new Error(`Error creating manifest: ${error.message}`);
@@ -34,8 +36,9 @@ export const manifestService = {
 
   // Add shipment to manifest
   async addShipmentToManifest(manifestId: string, shipmentId: string) {
-    const { data, error } = await supabase
-      .from('manifest_items')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('manifest_items') as any)
       .insert([{ manifest_id: manifestId, shipment_id: shipmentId }])
       .select();
     if (error) throw new Error(`Error adding shipment to manifest: ${error.message}`);
@@ -44,7 +47,8 @@ export const manifestService = {
 
   // Remove shipment from manifest
   async removeShipmentFromManifest(manifestItemId: string) {
-    const { error } = await supabase
+    const client = getSupabaseClient();
+    const { error } = await client
       .from('manifest_items')
       .delete()
       .eq('manifest_item_id', manifestItemId);
@@ -53,8 +57,9 @@ export const manifestService = {
 
   // Update manifest status
   async updateManifestStatus(manifestId: string, status: string) {
-    const { data, error } = await supabase
-      .from('manifests')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('manifests') as any)
       .update({ status, updated_at: new Date().toISOString() })
       .eq('manifest_id', manifestId)
       .select();
@@ -64,8 +69,9 @@ export const manifestService = {
 
   // Record arrival
   async recordArrival(manifestId: string) {
-    const { data, error } = await supabase
-      .from('manifests')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('manifests') as any)
       .update({ arrival_time: new Date().toISOString() })
       .eq('manifest_id', manifestId)
       .select();
@@ -75,7 +81,8 @@ export const manifestService = {
 
   // Get manifest items
   async getManifestItems(manifestId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('manifest_items')
       .select(`
         *,

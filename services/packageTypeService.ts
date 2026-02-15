@@ -1,10 +1,11 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { PackageType } from '@/types';
 
 export const packageTypeService = {
   // Get all package types
   async getAllPackageTypes(agencyId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('package_types')
       .select('*')
       .eq('agency_id', agencyId)
@@ -15,7 +16,8 @@ export const packageTypeService = {
 
   // Get package type by ID
   async getPackageTypeById(typeId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('package_types')
       .select('*')
       .eq('type_id', typeId)
@@ -26,8 +28,9 @@ export const packageTypeService = {
 
   // Create package type
   async createPackageType(packageType: Omit<PackageType, 'created_at'>) {
-    const { data, error } = await supabase
-      .from('package_types')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('package_types') as any)
       .insert([packageType])
       .select();
     if (error) throw new Error(`Error creating package type: ${error.message}`);
@@ -36,8 +39,9 @@ export const packageTypeService = {
 
   // Update package type
   async updatePackageType(typeId: string, updates: Partial<PackageType>) {
-    const { data, error } = await supabase
-      .from('package_types')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('package_types') as any)
       .update(updates)
       .eq('type_id', typeId)
       .select();
@@ -47,7 +51,8 @@ export const packageTypeService = {
 
   // Delete package type
   async deletePackageType(typeId: string) {
-    const { error } = await supabase
+    const client = getSupabaseClient();
+    const { error } = await client
       .from('package_types')
       .delete()
       .eq('type_id', typeId);

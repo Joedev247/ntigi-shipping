@@ -1,10 +1,11 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { Client } from '@/types';
 
 export const clientService = {
   // Get all clients
   async getAllClients(agencyId?: string) {
-    let query = supabase.from('clients').select('*');
+    const client = getSupabaseClient();
+    let query = client.from('clients').select('*');
     if (agencyId) query = query.eq('agency_id', agencyId);
     const { data, error } = await query.order('created_at', { ascending: false });
     if (error) throw new Error(`Error fetching clients: ${error.message}`);
@@ -13,7 +14,8 @@ export const clientService = {
 
   // Get client by ID
   async getClientById(clientId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('clients')
       .select('*')
       .eq('client_id', clientId)
@@ -25,7 +27,8 @@ export const clientService = {
   // Get or create client by phone
   async getOrCreateClient(phone: string, fullName: string, email?: string) {
     // First, try to get existing client
-    const { data: existing, error: getError } = await supabase
+    const client = getSupabaseClient();
+    const { data: existing, error: getError } = await client
       .from('clients')
       .select('*')
       .eq('phone_number', phone)
@@ -34,8 +37,8 @@ export const clientService = {
     if (existing) return existing as Client;
 
     // Create new client if not found
-    const { data: newClient, error: createError } = await supabase
-      .from('clients')
+    const { data: newClient, error: createError } = await (client
+      .from('clients') as any)
       .insert([
         {
           phone_number: phone,
@@ -52,8 +55,9 @@ export const clientService = {
 
   // Update client
   async updateClient(clientId: string, updates: Partial<Client>) {
-    const { data, error } = await supabase
-      .from('clients')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('clients') as any)
       .update(updates)
       .eq('client_id', clientId)
       .select();
@@ -63,8 +67,9 @@ export const clientService = {
 
   // Verify client phone
   async verifyClientPhone(clientId: string) {
-    const { data, error } = await supabase
-      .from('clients')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('clients') as any)
       .update({ is_verified: true })
       .eq('client_id', clientId)
       .select();
@@ -74,7 +79,8 @@ export const clientService = {
 
   // Search clients
   async searchClients(query: string, agencyId?: string) {
-    let supabaseQuery = supabase
+    const client = getSupabaseClient();
+    let supabaseQuery = client
       .from('clients')
       .select('*')
       .or(`phone_number.ilike.%${query}%,full_name.ilike.%${query}%`);

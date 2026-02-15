@@ -1,10 +1,11 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { Vehicle } from '@/types';
 
 export const vehicleService = {
   // Get all vehicles
   async getAllVehicles(agencyId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('vehicles')
       .select('*')
       .eq('agency_id', agencyId)
@@ -15,7 +16,8 @@ export const vehicleService = {
 
   // Get vehicle by ID
   async getVehicleById(vehicleId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('vehicles')
       .select('*')
       .eq('vehicle_id', vehicleId)
@@ -26,8 +28,9 @@ export const vehicleService = {
 
   // Create vehicle
   async createVehicle(vehicle: Omit<Vehicle, 'created_at'>) {
-    const { data, error } = await supabase
-      .from('vehicles')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('vehicles') as any)
       .insert([vehicle])
       .select();
     if (error) throw new Error(`Error creating vehicle: ${error.message}`);
@@ -36,8 +39,9 @@ export const vehicleService = {
 
   // Update vehicle
   async updateVehicle(vehicleId: string, updates: Partial<Vehicle>) {
-    const { data, error } = await supabase
-      .from('vehicles')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('vehicles') as any)
       .update(updates)
       .eq('vehicle_id', vehicleId)
       .select();
@@ -47,7 +51,8 @@ export const vehicleService = {
 
   // Delete vehicle
   async deleteVehicle(vehicleId: string) {
-    const { error } = await supabase
+    const client = getSupabaseClient();
+    const { error } = await client
       .from('vehicles')
       .delete()
       .eq('vehicle_id', vehicleId);
@@ -56,7 +61,8 @@ export const vehicleService = {
 
   // Get vehicles by type
   async getVehiclesByType(agencyId: string, type: Vehicle['vehicle_type']) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('vehicles')
       .select('*')
       .eq('agency_id', agencyId)

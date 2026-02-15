@@ -1,17 +1,19 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { AppUser } from '@/types';
 
 export const userService = {
   // Get current user
   async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const client = getSupabaseClient();
+    const { data: { user }, error } = await client.auth.getUser();
     if (error) throw new Error(`Error fetching current user: ${error.message}`);
     return user;
   },
 
   // Get user by phone
   async getUserByPhone(phone: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('users')
       .select('*')
       .eq('phone_number', phone)
@@ -22,7 +24,8 @@ export const userService = {
 
   // Get all users in branch
   async getUsersByBranch(branchId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('users')
       .select('*')
       .eq('branch_id', branchId)
@@ -33,7 +36,8 @@ export const userService = {
 
   // Get all drivers
   async getDrivers(agencyId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('users')
       .select('*, branch:branch_id(*)')
       .eq('role', 'DRIVER')
@@ -44,8 +48,9 @@ export const userService = {
 
   // Create user (for internal agents)
   async createUser(user: Omit<AppUser, 'created_at'>) {
-    const { data, error } = await supabase
-      .from('users')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('users') as any)
       .insert([user])
       .select();
     if (error) throw new Error(`Error creating user: ${error.message}`);
@@ -54,8 +59,9 @@ export const userService = {
 
   // Update user
   async updateUser(userId: string, updates: Partial<AppUser>) {
-    const { data, error } = await supabase
-      .from('users')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('users') as any)
       .update(updates)
       .eq('user_id', userId)
       .select();
@@ -65,7 +71,8 @@ export const userService = {
 
   // Sign up
   async signUp(email: string, password: string) {
-    const { data, error } = await supabase.auth.signUp({
+    const client = getSupabaseClient();
+    const { data, error } = await client.auth.signUp({
       email,
       password,
     });
@@ -75,7 +82,8 @@ export const userService = {
 
   // Sign in
   async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const client = getSupabaseClient();
+    const { data, error } = await client.auth.signInWithPassword({
       email,
       password,
     });
@@ -85,13 +93,15 @@ export const userService = {
 
   // Sign out
   async signOut() {
-    const { error } = await supabase.auth.signOut();
+    const client = getSupabaseClient();
+    const { error } = await client.auth.signOut();
     if (error) throw new Error(`Error signing out: ${error.message}`);
   },
 
   // Reset password
   async resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email);
+    const client = getSupabaseClient();
+    const { error } = await client.auth.resetPasswordForEmail(email);
     if (error) throw new Error(`Error resetting password: ${error.message}`);
   },
 };

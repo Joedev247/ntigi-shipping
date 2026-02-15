@@ -1,10 +1,11 @@
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { Agency } from '@/types';
 
 export const agencyService = {
   // Get all agencies
   async getAllAgencies() {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('agencies')
       .select('*')
       .order('created_at', { ascending: false });
@@ -14,7 +15,8 @@ export const agencyService = {
 
   // Get agency by ID
   async getAgencyById(agencyId: string) {
-    const { data, error } = await supabase
+    const client = getSupabaseClient();
+    const { data, error } = await client
       .from('agencies')
       .select('*')
       .eq('agency_id', agencyId)
@@ -25,8 +27,9 @@ export const agencyService = {
 
   // Create agency
   async createAgency(agency: Omit<Agency, 'created_at'>) {
-    const { data, error } = await supabase
-      .from('agencies')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('agencies') as any)
       .insert([agency])
       .select();
     if (error) throw new Error(`Error creating agency: ${error.message}`);
@@ -35,8 +38,9 @@ export const agencyService = {
 
   // Update agency
   async updateAgency(agencyId: string, updates: Partial<Agency>) {
-    const { data, error } = await supabase
-      .from('agencies')
+    const client = getSupabaseClient();
+    const { data, error } = await (client
+      .from('agencies') as any)
       .update(updates)
       .eq('agency_id', agencyId)
       .select();
@@ -46,7 +50,8 @@ export const agencyService = {
 
   // Delete agency
   async deleteAgency(agencyId: string) {
-    const { error } = await supabase
+    const client = getSupabaseClient();
+    const { error } = await client
       .from('agencies')
       .delete()
       .eq('agency_id', agencyId);
