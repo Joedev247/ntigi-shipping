@@ -1,5 +1,7 @@
-// SMS and WhatsApp Notification Service using Twilio
-// Configuration and sending notifications
+// SMS and WhatsApp Notification Service using Twilio + Supabase
+// Configuration and sending notifications with database logging
+
+import { getSupabaseClient } from '@/lib/supabase';
 
 interface NotificationConfig {
   twilioAccountSid: string;
@@ -99,10 +101,30 @@ export async function sendSMS(payload: NotificationPayload): Promise<void> {
     }
 
     console.log(`SMS sent to ${payload.recipient.phone}`);
+    
+    // Log notification to Supabase
+    await logNotificationToDatabase({
+      phoneNumber: payload.recipient.phone,
+      messageType: payload.messageType,
+      channel: 'SMS',
+      messageContent: message,
+      status: 'SENT',
+      shipmentId: payload.data.trackingNumber
+    });
   } catch (error) {
     console.error('SMS send error:', error);
     // Fallback: log for debugging
     console.log(`[SMS FALLBACK] To: ${payload.recipient.phone}, Message: ${messageTemplates[payload.messageType](payload.data)}`);
+    
+    // Log failed notification
+    await logNotificationToDatabase({
+      phoneNumber: payload.recipient.phone,
+      messageType: payload.messageType,
+      channel: 'SMS',
+      messageContent: messageTemplates[payload.messageType](payload.data),
+      status: 'FAILED',
+      shipmentId: payload.data.trackingNumber
+    });
   }
 }
 
@@ -139,32 +161,238 @@ export async function sendWhatsApp(payload: NotificationPayload): Promise<void> 
     }
 
     console.log(`WhatsApp sent to ${whatsAppPhone}`);
+    
+    // Log notification to Supabase
+    await logNotificationToDatabase({
+      phoneNumber: whatsAppPhone,
+      messageType: payload.messageType,
+      channel: 'WHATSAPP',
+      messageContent: message,
+      status: 'SENT',
+      shipmentId: payload.data.trackingNumber
+    });
   } catch (error) {
     console.error('WhatsApp send error:', error);
     // Fallback: log for debugging
     console.log(`[WHATSAPP FALLBACK] To: ${payload.recipient.phone}, Message: ${messageTemplates[payload.messageType](payload.data)}`);
+    
+    // Log failed notification
+    await logNotificationToDatabase({
+      phoneNumber: payload.recipient.phone,
+      messageType: payload.messageType,
+      channel: 'WHATSAPP',
+      messageContent: messageTemplates[payload.messageType](payload.data),
+      status: 'FAILED',
+      shipmentId: payload.data.trackingNumber
+    });
   }
 }
 
-// Send notification (auto-select SMS or WhatsApp based on recipient preference)
-export async function sendNotification(payload: NotificationPayload): Promise<void> {
-  if (payload.recipient.type === 'SMS') {
-    await sendSMS(payload);
-  } else if (payload.recipient.type === 'WhatsApp') {
-    await sendWhatsApp(payload);
-  } else if (payload.recipient.type === 'both') {
-    await Promise.all([
-      sendSMS(payload),
-      sendWhatsApp(payload)
-    ]);
+// ========================================
+// SUPABASE INTEGRATION FUNCTIONS
+// ========================================
+
+// Get notification preferences for a client
+export async function getNotificationPreferences(clientId: string) {
+  try {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('notification_preferences')
+      .select('*')
+      .eq('client_id', clientId)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') {
+      throw new Error(`Error fetching preferences: ${error.message}`);
+    }
+    return data || null;
+  } catch (error) {
+    console.error('Error getting notification preferences:', error);
+    return null;
   }
 }
 
-// Send bulk notifications (for batch operations)
-export async function sendBulkNotifications(payloads: NotificationPayload[]): Promise<void> {
-  await Promise.allSettled(
-    payloads.map(payload => sendNotification(payload))
-  );
+// Save/Update notification preferences
+export async function setNotificationPreferences(
+  clientId: string,
+  preferences: {
+    smsEnabled?: boolean;
+    whatsappEnabled?: boolean;
+    emailEnabled?: boolean;
+    phoneCallEnabled?: boolean;
+  }
+) {
+  try {
+    const existing = await getNotificationPreferences(clientId);
+    const client = getSupabaseClient();
+    
+    if (existing) {
+      // Update
+      const { data, error } = await (client
+        .from('notification_preferences') as any)
+        .update({
+          sms_enabled: preferences.smsEnabled,
+          whatsapp_enabled: preferences.whatsappEnabled,
+          email_enabled: preferences.emailEnabled,
+          phone_call_enabled: preferences.phoneCallEnabled,
+          updated_at: new Date().toISOString()
+        })
+        .eq('client_id', clientId)
+        .select();
+      
+      if (error) throw new Error(`Error updating preferences: ${error.message}`);
+      return data[0];
+    } else {
+      // Create
+      const { data, error } = await client
+        .from('notification_preferences')
+        .insert([
+          {
+            client_id: clientId,
+            sms_enabled: preferences.smsEnabled ?? true,
+            whatsapp_enabled: preferences.whatsappEnabled ?? true,
+            email_enabled: preferences.emailEnabled ?? false,
+            phone_call_enabled: preferences.phoneCallEnabled ?? false
+          }
+        ] as any)
+        .select();
+      
+      if (error) throw new Error(`Error creating preferences: ${error.message}`);
+      return data[0];
+    }
+  } catch (error) {
+    console.error('Error setting notification preferences:', error);
+    throw error;
+  }
+}
+
+// Log notification to database
+interface NotificationLogEntry {
+  phoneNumber: string;
+  messageType: string;
+  channel: 'SMS' | 'WHATSAPP' | 'EMAIL' | 'PHONE_CALL';
+  messageContent: string;
+  status: 'SENT' | 'FAILED' | 'PENDING';
+  shipmentId?: string;
+  clientId?: string;
+}
+
+export async function logNotificationToDatabase(log: NotificationLogEntry) {
+  try {
+    const client = getSupabaseClient();
+    // Find client by phone number
+    let clientId = log.clientId;
+    if (!clientId) {
+      const { data: clientData } = await (client
+        .from('clients') as any)
+        .select('client_id')
+        .eq('phone_number', log.phoneNumber)
+        .single();
+      clientId = (clientData as any)?.client_id;
+    }
+
+    // Find shipment ID by tracking number
+    let shipmentId = undefined;
+    if (log.shipmentId) {
+      const { data: shipmentData } = await (client
+        .from('shipments') as any)
+        .select('shipment_id')
+        .eq('tracking_no', log.shipmentId)
+        .single();
+      shipmentId = (shipmentData as any)?.shipment_id;
+    }
+
+    const { error } = await client
+      .from('notification_logs')
+      .insert([
+        {
+          client_id: clientId,
+          shipment_id: shipmentId,
+          message_type: log.messageType,
+          channel: log.channel,
+          phone_to: log.phoneNumber,
+          message_content: log.messageContent,
+          status: log.status,
+          sent_at: log.status === 'SENT' ? new Date().toISOString() : null
+        }
+      ] as any);
+
+    if (error) {
+      console.error('Error logging notification:', error);
+    }
+  } catch (error) {
+    console.error('Error in logNotificationToDatabase:', error);
+  }
+}
+
+// Get notification history for a client
+export async function getNotificationHistory(clientId: string, limit = 50) {
+  try {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('notification_logs')
+      .select('*')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false })
+      .limit(limit);
+
+    if (error) throw new Error(`Error fetching history: ${error.message}`);
+    return data || [];
+  } catch (error) {
+    console.error('Error getting notification history:', error);
+    return [];
+  }
+}
+
+// Get notification history for a shipment
+export async function getShipmentNotificationHistory(shipmentId: string) {
+  try {
+    const client = getSupabaseClient();
+    const { data, error } = await client
+      .from('notification_logs')
+      .select('*')
+      .eq('shipment_id', shipmentId)
+      .order('created_at', { ascending: true });
+
+    if (error) throw new Error(`Error fetching shipment notifications: ${error.message}`);
+    return data || [];
+  } catch (error) {
+    console.error('Error getting shipment notification history:', error);
+    return [];
+  }
+}
+
+// Get notification statistics
+export async function getNotificationStatistics(agencyId?: string) {
+  try {
+    const client = getSupabaseClient();
+    let query = client
+      .from('notification_logs')
+      .select('status, channel', { count: 'exact' });
+
+    const { data, count, error } = await query;
+
+    if (error) throw new Error(`Error fetching statistics: ${error.message}`);
+
+    const stats = {
+      totalSent: (data as any)?.filter((n: any) => n.status === 'SENT').length || 0,
+      totalFailed: (data as any)?.filter((n: any) => n.status === 'FAILED').length || 0,
+      smsSent: (data as any)?.filter((n: any) => n.channel === 'SMS' && n.status === 'SENT').length || 0,
+      whatsappSent: (data as any)?.filter((n: any) => n.channel === 'WHATSAPP' && n.status === 'SENT').length || 0,
+      emailSent: (data as any)?.filter((n: any) => n.channel === 'EMAIL' && n.status === 'SENT').length || 0,
+    };
+
+    return stats;
+  } catch (error) {
+    console.error('Error getting notification statistics:', error);
+    return {
+      totalSent: 0,
+      totalFailed: 0,
+      smsSent: 0,
+      whatsappSent: 0,
+      emailSent: 0
+    };
+  }
 }
 
 // Helper: Format phone number for WhatsApp (Cameroon example: +237...)
@@ -192,57 +420,68 @@ export function isValidPhoneNumber(phone: string): boolean {
   return phoneRegex.test(phone);
 }
 
-// Get notification statistics
-export function getNotificationStats(): {
-  smsSent: number;
-  whatsAppSent: number;
-  failedNotifications: number;
-} {
-  const stats = JSON.parse(sessionStorage.getItem('notificationStats') || '{"smsSent":0,"whatsAppSent":0,"failedNotifications":0}');
-  return stats;
-}
+// Send notification (auto-select based on client preferences from Supabase)
+export async function sendNotification(payload: NotificationPayload): Promise<void> {
+  try {
+    // Get client preferences from Supabase by phone number
+    const client = getSupabaseClient();
+    const { data: clientData } = await client
+      .from('clients')
+      .select('client_id')
+      .eq('phone_number', payload.recipient.phone)
+      .single();
 
-// Reset notification statistics
-export function resetNotificationStats(): void {
-  sessionStorage.setItem('notificationStats', JSON.stringify({
-    smsSent: 0,
-    whatsAppSent: 0,
-    failedNotifications: 0
-  }));
-}
+    if (clientData) {
+      const preferences = await getNotificationPreferences((clientData as any).client_id);
+      
+      // Determine channels based on preferences or recipient type
+      const channels = {
+        sms: (preferences as any)?.sms_enabled ?? (payload.recipient.type === 'SMS' || payload.recipient.type === 'both'),
+        whatsapp: (preferences as any)?.whatsapp_enabled ?? (payload.recipient.type === 'WhatsApp' || payload.recipient.type === 'both'),
+      };
 
-// Notification history (for audit trail)
-interface NotificationRecord {
-  id: string;
-  timestamp: string;
-  recipient: string;
-  type: 'SMS' | 'WhatsApp';
-  messageType: string;
-  status: 'sent' | 'failed' | 'pending';
-  message: string;
-}
-
-export function addNotificationRecord(record: Omit<NotificationRecord, 'id' | 'timestamp'>): void {
-  const history = JSON.parse(sessionStorage.getItem('notificationHistory') || '[]') as NotificationRecord[];
-  const newRecord: NotificationRecord = {
-    ...record,
-    id: `notif_${Date.now()}`,
-    timestamp: new Date().toISOString()
-  };
-  history.push(newRecord);
-  
-  // Keep only last 100 records
-  if (history.length > 100) {
-    history.shift();
+      if (channels.sms) {
+        await sendSMS(payload);
+      }
+      if (channels.whatsapp) {
+        await sendWhatsApp(payload);
+      }
+      
+      if (!channels.sms && !channels.whatsapp && !payload.recipient.type) {
+        console.warn('No notification channels enabled for recipient:', payload.recipient.phone);
+      }
+    } else {
+      // Client not found in Supabase, use fallback
+      if (payload.recipient.type === 'SMS') {
+        await sendSMS(payload);
+      } else if (payload.recipient.type === 'WhatsApp') {
+        await sendWhatsApp(payload);
+      } else if (payload.recipient.type === 'both') {
+        await Promise.all([
+          sendSMS(payload),
+          sendWhatsApp(payload)
+        ]);
+      }
+    }
+  } catch (error) {
+    console.error('Error in sendNotification:', error);
+    // Fallback to original logic
+    if (payload.recipient.type === 'SMS') {
+      await sendSMS(payload);
+    } else if (payload.recipient.type === 'WhatsApp') {
+      await sendWhatsApp(payload);
+    } else if (payload.recipient.type === 'both') {
+      await Promise.all([
+        sendSMS(payload),
+        sendWhatsApp(payload)
+      ]);
+    }
   }
-  
-  sessionStorage.setItem('notificationHistory', JSON.stringify(history));
 }
 
-export function getNotificationHistory(): NotificationRecord[] {
-  return JSON.parse(sessionStorage.getItem('notificationHistory') || '[]');
-}
-
-export function clearNotificationHistory(): void {
-  sessionStorage.removeItem('notificationHistory');
+// Send bulk notifications (for batch operations)
+export async function sendBulkNotifications(payloads: NotificationPayload[]): Promise<void> {
+  await Promise.allSettled(
+    payloads.map(payload => sendNotification(payload))
+  );
 }

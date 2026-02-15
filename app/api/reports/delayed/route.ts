@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 
 function toCsv(rows: Record<string, any>[]) {
   if (!rows || rows.length === 0) return '';
@@ -15,6 +15,7 @@ function toCsv(rows: Record<string, any>[]) {
 
 export async function GET(req: Request) {
   try {
+    const supabase = getSupabaseClient();
     const url = new URL(req.url);
     const format = (url.searchParams.get('format') || 'csv').toLowerCase();
     const thresholdHours = Number(url.searchParams.get('thresholdHours') || '48');

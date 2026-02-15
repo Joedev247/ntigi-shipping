@@ -3,7 +3,7 @@
 // Place this file at: app/api/shipments/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 
 // POST /api/shipments - Create a new shipment
 export async function POST(request: NextRequest) {
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create shipment in database
+    const supabase = getSupabaseClient();
     const { data, error } = await supabase
       .from('shipments')
       .insert([body])
