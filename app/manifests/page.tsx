@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { Truck, Plus, MapPin, Calendar, Package, CheckCircle } from 'phosphor-react';
 import toast from 'react-hot-toast';

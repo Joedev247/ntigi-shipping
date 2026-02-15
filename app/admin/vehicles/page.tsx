@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from 'react';
 import { PageLayout, Container } from '@/components/Layout';
 import { Card } from '@/components/Card';

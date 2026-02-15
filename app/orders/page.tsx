@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import React, { useState } from 'react';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { DataTable, ActionButton, SearchBar } from '@/components/Dashboard';
