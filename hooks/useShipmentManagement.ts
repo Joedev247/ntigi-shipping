@@ -44,9 +44,23 @@ export const useShipmentManagement = (agencyId?: string) => {
     }
   };
 
+  const updateShipment = async (trackingNo: string, updates: any) => {
+    setLoading(true);
+    try {
+      const updated = await shipmentService.updateShipmentStatus(trackingNo, updates.status);
+      setShipments(shipments.map(s => s.tracking_no === trackingNo ? updated : s));
+      return updated;
+    } catch (err: any) {
+      setError(err.message || 'Failed to update shipment');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchShipments();
   }, [agencyId]);
 
-  return { shipments, loading, error, addShipment, getShipmentByTracking, fetchShipments };
+  return { shipments, loading, error, addShipment, updateShipment, getShipmentByTracking, fetchShipments };
 };

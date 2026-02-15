@@ -206,7 +206,7 @@ export const ManifestDetailView: React.FC<ManifestDetailsProps> = ({
         </div>
 
         {/* Shipment Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="grid grid-cols-2 gap-3 mb-6 p-4 bg-gray-50  border border-gray-200">
           <div>
             <p className="text-xs text-gray-600">Total Shipments</p>
             <p className="text-2xl font-bold text-gray-900">{assignedShipments.length}</p>
@@ -226,7 +226,7 @@ export const ManifestDetailView: React.FC<ManifestDetailsProps> = ({
         ) : (
           <div className="space-y-3">
             {assignedShipments.map((shipment) => (
-              <div key={shipment.id} className="flex items-start justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+              <div key={shipment.id} className="flex items-start justify-between p-3 border border-gray-200  hover:bg-gray-50 transition">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <p className="font-mono font-semibold text-gray-900">{shipment.trackingNo}</p>

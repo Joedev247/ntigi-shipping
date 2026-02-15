@@ -130,7 +130,7 @@ export default function ManifestsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-green-100 text-green-800 border-green-300';
       case 'IN_TRANSIT':
         return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'COMPLETED':
@@ -162,13 +162,13 @@ export default function ManifestsPage() {
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200">
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Pending</p>
-              <p className="text-3xl font-bold text-yellow-600">{stats.pending}</p>
+              <p className="text-3xl font-bold text-green-600">{stats.pending}</p>
             </div>
-            <Calendar size={40} className="text-yellow-200" />
+            <Calendar size={40} className="text-green-200" />
           </div>
         </Card>
 
@@ -200,12 +200,12 @@ export default function ManifestsPage() {
           placeholder="Search by trip name, vehicle, or driver..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-4 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as any)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-4 py-2 border border-gray-300  focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <option value="ALL">All Status</option>
           <option value="PENDING">Pending</option>
@@ -219,7 +219,7 @@ export default function ManifestsPage() {
       </div>
 
       {/* Manifests Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className="bg-white  border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b border-gray-200">

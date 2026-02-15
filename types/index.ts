@@ -30,6 +30,7 @@ export interface AppUser {
   phone_number: string;
   email?: string;
   role: 'SUPER_ADMIN' | 'MANAGER' | 'AGENT' | 'DRIVER';
+  is_active: boolean;
   created_at: string;
 }
 

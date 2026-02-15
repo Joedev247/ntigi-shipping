@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import { expenseService } from '@/services/expenseService';
 
-export const useExpenseManagement = () => {
+export const useExpenseManagement = (agencyId?: string, filters?: any) => {
   const [expenses, setExpenses] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -9,11 +10,8 @@ export const useExpenseManagement = () => {
     setLoading(true);
     setError(null);
     try {
-      // TODO: Implement expense service
-      setExpenses([
-        { id: '1', date: '2024-01-12', description: 'Fuel', amount: '8000', category: 'Fuel', memo: 'ABC123' },
-        { id: '2', date: '2024-01-11', description: 'Maintenance', amount: '5000', category: 'Maintenance', memo: 'XYZ789' }
-      ]);
+      const data = await expenseService.getAllExpenses(agencyId, filters);
+      setExpenses(data || []);
     } catch (err: any) {
       setError(err.message || 'Failed to fetch expenses');
     } finally {
@@ -25,7 +23,10 @@ export const useExpenseManagement = () => {
     setLoading(true);
     setError(null);
     try {
-      const newExpense = { id: Date.now().toString(), ...expenseData };
+      const newExpense = await expenseService.createExpense({
+        agency_id: agencyId || 'default-agency',
+        ...expenseData,
+      });
       setExpenses([newExpense, ...expenses]);
       return newExpense;
     } catch (err: any) {
@@ -36,9 +37,38 @@ export const useExpenseManagement = () => {
     }
   };
 
+  const updateExpense = async (expenseId: string, expenseData: any) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await expenseService.updateExpense(expenseId, expenseData);
+      setExpenses(expenses.map(e => e.expense_id === expenseId ? updated : e));
+      return updated;
+    } catch (err: any) {
+      setError(err.message || 'Failed to update expense');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteExpense = async (expenseId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await expenseService.deleteExpense(expenseId);
+      setExpenses(expenses.filter(e => e.expense_id !== expenseId));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete expense');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchExpenses();
-  }, []);
+  }, [agencyId, filters]);
 
-  return { expenses, loading, error, addExpense, fetchExpenses };
+  return { expenses, loading, error, addExpense, updateExpense, deleteExpense, fetchExpenses };
 };

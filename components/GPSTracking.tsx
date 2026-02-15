@@ -46,7 +46,7 @@ export const GPSTracking: React.FC<GPSTrackingProps> = ({
     <div className="space-y-6">
       {/* GPS Map Display */}
       <Card className="p-0 overflow-hidden">
-        <div className="bg-gray-100 rounded-lg h-96 flex items-center justify-center relative overflow-hidden">
+        <div className="bg-gray-100  h-96 flex items-center justify-center relative overflow-hidden">
           {/* Simple map visualization using CSS */}
           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 400 300" preserveAspectRatio="none">
             {/* Background */}

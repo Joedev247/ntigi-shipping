@@ -13,24 +13,38 @@ import toast from 'react-hot-toast';
 
 export default function ShipmentsPage() {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const { shipments, loading, error } = useShipmentManagement();
+  const { shipments, loading, error, fetchShipments } = useShipmentManagement();
 
-  const filteredShipments = shipments.filter(s =>
-    s.tracking_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.sender?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.receiver?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredShipments = shipments.filter(s => {
+    const matchesSearch = 
+      s.tracking_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.sender?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      s.receiver?.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = !statusFilter || s.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      'PENDING': 'bg-yellow-100 text-yellow-800',
-      'IN_TRANSIT': 'bg-green-100 text-green-800',
+      'PENDING': 'bg-green-100 text-green-800',
+      'IN_TRANSIT': 'bg-blue-100 text-blue-800',
       'ARRIVED': 'bg-purple-100 text-purple-800',
       'DELIVERED': 'bg-green-100 text-green-800',
       'CANCELLED': 'bg-red-100 text-red-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
+  };
+
+  const shipmentStats = {
+    total: shipments.length,
+    pending: shipments.filter(s => s.status === 'PENDING').length,
+    in_transit: shipments.filter(s => s.status === 'IN_TRANSIT').length,
+    delivered: shipments.filter(s => s.status === 'DELIVERED').length,
+    cancelled: shipments.filter(s => s.status === 'CANCELLED').length
   };
 
   if (loading) {
@@ -49,11 +63,52 @@ export default function ShipmentsPage() {
         </div>
       )}
 
-      <div className="flex justify-between items-center mb-6">
-        <SearchBar
-          placeholder="Search shipment..."
-          onSearch={setSearchTerm}
-        />
+      {/* Stats Section */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded">
+          <p className="text-xs text-gray-600">Total</p>
+          <p className="text-lg font-bold text-blue-900">{shipmentStats.total}</p>
+        </div>
+        <div className="bg-green-50 border border-green-200 p-3 rounded">
+          <p className="text-xs text-gray-600">Pending</p>
+          <p className="text-lg font-bold text-green-900">{shipmentStats.pending}</p>
+        </div>
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded">
+          <p className="text-xs text-gray-600">In Transit</p>
+          <p className="text-lg font-bold text-blue-900">{shipmentStats.in_transit}</p>
+        </div>
+        <div className="bg-green-50 border border-green-200 p-3 rounded">
+          <p className="text-xs text-gray-600">Delivered</p>
+          <p className="text-lg font-bold text-green-900">{shipmentStats.delivered}</p>
+        </div>
+        <div className="bg-red-50 border border-red-200 p-3 rounded">
+          <p className="text-xs text-gray-600">Cancelled</p>
+          <p className="text-lg font-bold text-red-900">{shipmentStats.cancelled}</p>
+        </div>
+      </div>
+
+      {/* Search and Filter Section */}
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <SearchBar
+            placeholder="Search by tracking no, sender, or receiver..."
+            onSearch={setSearchTerm}
+          />
+        </div>
+        <div className="w-full md:w-48">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="">All Status</option>
+            <option value="PENDING">Pending</option>
+            <option value="IN_TRANSIT">In Transit</option>
+            <option value="ARRIVED">Arrived</option>
+            <option value="DELIVERED">Delivered</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
         <ActionButton label="+ New Shipment" onClick={() => setShowCreateModal(true)} />
       </div>
 
@@ -73,16 +128,16 @@ export default function ShipmentsPage() {
               </span>
             )
           },
-          { key: 'total_cost', label: 'Cost', render: (v) => `XAF ${v}` }
+          { key: 'total_cost', label: 'Cost', render: (v) => `XAF ${v?.toLocaleString() || 0}` }
         ]}
         data={filteredShipments}
       />
 
-      <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded">
-        <p className="text-sm text-green-800">
-          <strong>Tip:</strong> Click on any shipment to view tracking details, photos, and transaction information.
-        </p>
-      </div>
+      {filteredShipments.length === 0 && (
+        <div className="mt-6 p-4 bg-gray-50 border border-gray-200 rounded text-center">
+          <p className="text-gray-600">No shipments found. Try adjusting your search or filters.</p>
+        </div>
+      )}
 
       <Modal
         isOpen={showCreateModal}
@@ -94,7 +149,7 @@ export default function ShipmentsPage() {
           onClose={() => setShowCreateModal(false)}
           onSuccess={() => {
             setShowCreateModal(false);
-            // Optionally refresh the shipments list
+            fetchShipments();
           }}
         />
       </Modal>

@@ -207,7 +207,7 @@ export default function NotificationSettingsPage() {
               value={config.twilioAccountSid}
               onChange={handleInputChange}
               placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+              className="w-full px-4 py-2 border border-gray-300  focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
             />
             <p className="text-xs text-gray-500 mt-1">Found in Twilio Console under Account Info</p>
           </div>
@@ -220,7 +220,7 @@ export default function NotificationSettingsPage() {
               value={config.twilioAuthToken}
               onChange={handleInputChange}
               placeholder="Your Auth Token"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+              className="w-full px-4 py-2 border border-gray-300  focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
             />
             <p className="text-xs text-gray-500 mt-1">Keep this token secret and secure</p>
           </div>
@@ -237,7 +237,7 @@ export default function NotificationSettingsPage() {
                 value={config.twilioPhoneNumber}
                 onChange={handleInputChange}
                 placeholder="+237XXXXXXXXXX"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300  focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">Your Twilio phone for SMS</p>
             </div>
@@ -253,7 +253,7 @@ export default function NotificationSettingsPage() {
                 value={config.twilioWhatsAppNumber}
                 onChange={handleInputChange}
                 placeholder="whatsapp:+237XXXXXXXXXX"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300  focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <p className="text-xs text-gray-500 mt-1">WhatsApp Business number from Twilio</p>
             </div>
@@ -266,7 +266,7 @@ export default function NotificationSettingsPage() {
         <h2 className="text-lg font-bold text-gray-900 mb-4">Notification Channels</h2>
         
         <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-green-200">
+          <div className="flex items-center justify-between p-4 bg-white  border border-green-200">
             <div className="flex items-center gap-3">
               <Phone size={24} className="text-blue-600" />
               <div>
@@ -286,7 +286,7 @@ export default function NotificationSettingsPage() {
             </label>
           </div>
 
-          <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-green-200">
+          <div className="flex items-center justify-between p-4 bg-white  border border-green-200">
             <div className="flex items-center gap-3">
               <WhatsappLogo size={24} className="text-green-600" />
               <div>
@@ -336,7 +336,7 @@ export default function NotificationSettingsPage() {
               value={testPhoneNumber}
               onChange={(e) => setTestPhoneNumber(e.target.value)}
               placeholder="+237XXXXXXXXXX or 6XXXXXXXXX"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300  focus:ring-2 focus:ring-amber-500 focus:border-transparent"
             />
             <p className="text-xs text-gray-600 mt-1">Use your own phone number to test notifications</p>
           </div>
@@ -387,7 +387,7 @@ export default function NotificationSettingsPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 border border-purple-200">
+        <div className="bg-white  p-4 border border-purple-200">
           <p className="text-sm text-gray-600">
             Total notifications sent: <span className="font-bold text-purple-600">{notificationHistory.length}</span>
           </p>
@@ -413,7 +413,7 @@ export default function NotificationSettingsPage() {
                   <span className={`text-xs px-2 py-1 rounded ${
                     record.status === 'sent' ? 'bg-green-100 text-green-700' :
                     record.status === 'failed' ? 'bg-red-100 text-red-700' :
-                    'bg-yellow-100 text-yellow-700'
+                    'bg-green-100 text-green-700'
                   }`}>
                     {record.status}
                   </span>

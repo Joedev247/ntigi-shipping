@@ -47,7 +47,7 @@ export default function ReportsPage() {
     const colors: Record<string, string> = {
       'COMPLETED': 'bg-green-100 text-green-800',
       'PROCESSING': 'bg-green-100 text-green-800',
-      'PENDING': 'bg-yellow-100 text-yellow-800',
+      'PENDING': 'bg-green-100 text-green-800',
       'FAILED': 'bg-red-100 text-red-800'
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
@@ -156,7 +156,7 @@ export default function ReportsPage() {
       </div>
 
       {/* Delayed Shipments Export */}
-      <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded">
+      <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded">
         <h3 className="font-semibold text-gray-800 mb-3">Delayed Shipment Logs</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
           <div>
@@ -175,7 +175,7 @@ export default function ReportsPage() {
             </select>
           </div>
           <div>
-            <button onClick={generateDelayed} className="px-4 py-2 bg-yellow-600 text-white rounded" disabled={generating}>
+            <button onClick={generateDelayed} className="px-4 py-2 bg-green-600 text-white rounded" disabled={generating}>
               {generating ? 'Generating...' : 'Export Delayed Logs'}
             </button>
           </div>

@@ -39,9 +39,9 @@ const Sidebar = () => {
   const isActive = (href: string) => pathname === href || pathname?.startsWith(href + '/');
 
   return (
-    <div className="w-64 bg-white min-h-screen border-r border-gray-200 flex flex-col shadow-sm">
+    <div className="w-64 bg-green-50 min-h-screen border-r border-green-200 flex flex-col shadow-sm">
       {/* Logo/Branding */}
-      <div className="p-6 border-b border-gray-100">
+      <div className="p-6 border-b border-green-100">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-800 bg-clip-text text-transparent">
           NTIGI SHIPPING
         </h1>
@@ -58,8 +58,8 @@ const Sidebar = () => {
                 href={item.href}
                 className={`flex items-center space-x-3 px-4 py-3  text-sm font-medium transition-all duration-200 ${
                   isActive(item.href)
-                    ? 'bg-green-50 text-green-700 border-l-4 border-green-600 pl-3'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+                    ? 'bg-green-100 text-green-700 border-l-4 border-green-600 pl-3'
+                    : 'text-gray-700 hover:bg-green-100 hover:text-green-800'
                 }`}
               >
                 <IconComponent size={20} weight={isActive(item.href) ? 'fill' : 'regular'} />
@@ -71,13 +71,13 @@ const Sidebar = () => {
       </nav>
 
       {/* Settings at Bottom */}
-      <div className="p-3 border-t border-gray-100 space-y-1">
+      <div className="p-3 border-t border-green-200 space-y-1">
         <Link
           href="/settings"
           className={`flex items-center space-x-3 px-4 py-3  text-sm font-medium transition-all duration-200 ${
             isActive('/settings') && !isActive('/settings/notifications')
-              ? 'bg-green-50 text-green-700 border-l-4 border-green-600 pl-3'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-green-100 text-green-700 border-l-4 border-green-600 pl-3'
+              : 'text-gray-700 hover:bg-green-100 hover:text-green-800'
           }`}
         >
           <Gear size={20} weight={isActive('/settings') && !isActive('/settings/notifications') ? 'fill' : 'regular'} />
@@ -87,8 +87,8 @@ const Sidebar = () => {
           href="/settings/notifications"
           className={`flex items-center space-x-3 px-4 py-3  text-sm font-medium transition-all duration-200 ${
             isActive('/settings/notifications')
-              ? 'bg-green-50 text-green-700 border-l-4 border-green-600 pl-3'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              ? 'bg-green-100 text-green-700 border-l-4 border-green-600 pl-3'
+              : 'text-gray-700 hover:bg-green-100 hover:text-green-800'
           }`}
         >
           <Bell size={20} weight={isActive('/settings/notifications') ? 'fill' : 'regular'} />

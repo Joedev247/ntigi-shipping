@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { shipmentService } from '@/services/shipmentService';
 import { MagnifyingGlass, MapPin, Calendar, CheckCircle, Clock } from 'phosphor-react';
@@ -75,9 +76,23 @@ export default function TrackingPage() {
 
   return (
     <DashboardLayout title="Track Shipment">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-3xl mx-auto">
+        <div className="flex justify-end gap-2 mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center px-3 py-2 border rounded text-sm bg-white hover:bg-gray-50"
+          >
+            Home
+          </Link>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center px-3 py-2 border rounded text-sm bg-white hover:bg-gray-50"
+          >
+            Dashboard
+          </Link>
+        </div>
         {/* Search Section */}
-        <div className="bg-white  border border-gray-200 p-8 shadow-sm mb-8">
+        <div className="bg-white border border-gray-200 p-6 md:p-8 shadow-sm mb-8 rounded-lg">
           <form onSubmit={handleSearch}>
             <div className="flex gap-3">
               <div className="flex-1 relative">
@@ -90,13 +105,13 @@ export default function TrackingPage() {
                   placeholder="Enter tracking number (e.g., TRK892L)"
                   value={trackingNo}
                   onChange={(e) => setTrackingNo(e.target.value.toUpperCase())}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300  text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 text-sm rounded focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-green-600 text-white px-6 py-3  font-medium hover:bg-green-700 disabled:opacity-50 transition"
+                className="bg-emerald-600 text-white px-6 py-3 font-medium hover:bg-emerald-700 disabled:opacity-50 transition rounded"
               >
                 {loading ? 'Searching...' : 'Track'}
               </button>
@@ -108,22 +123,22 @@ export default function TrackingPage() {
         {searched && !loading && shipment && (
           <div className="space-y-6">
             {/* Shipment Header */}
-            <div className="bg-white  border border-gray-200 p-8 shadow-sm">
-              <div className="grid grid-cols-2 gap-8 mb-8">
+            <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
                 <div>
-                  <p className="text-sm text-gray-600 mb-1">Tracking Number</p>
-                  <p className="text-2xl font-mono font-bold text-green-600">{shipment.tracking_no}</p>
+                  <p className="text-sm text-gray-500 mb-1">Tracking Number</p>
+                  <p className="text-2xl font-mono font-bold text-gray-900">{shipment.tracking_no}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-600 mb-1">Status</p>
-                  <div className={`inline-flex items-center gap-2 px-4 py-2  border font-semibold text-sm ${getStatusColor(shipment.status)}`}>
+                <div className="text-right">
+                  <p className="text-sm text-gray-500 mb-1">Status</p>
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 border font-semibold text-sm ${getStatusColor(shipment.status)}`}>
                     {getStatusIcon(shipment.status)}
-                    {shipment.status.replace('_', ' ')}
+                    <span className="uppercase">{shipment.status.replace('_', ' ')}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-sm text-gray-600 mb-1">From</p>
                   <p className="font-semibold text-gray-900">{shipment.origin?.stop_name || 'N/A'}</p>
@@ -138,19 +153,19 @@ export default function TrackingPage() {
             </div>
 
             {/* Timeline */}
-            <div className="bg-white  border border-gray-200 p-8 shadow-sm">
+            <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
               <h3 className="text-lg font-semibold text-gray-900 mb-6">Delivery Timeline</h3>
-              <div className="space-y-4">
+              <div className="space-y-6">
                 {statusTimeline.map((item, index) => (
                   <div key={item.status} className="flex gap-4">
                     <div className="flex flex-col items-center">
-                      <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        item.completed ? 'bg-green-500 border-green-500' : 'bg-white border-gray-300'
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center ${
+                        item.completed ? 'bg-emerald-600 border-emerald-600' : 'bg-white border-gray-300'
                       }`}>
-                        {item.completed && <CheckCircle size={20} className="text-white" />}
+                        {item.completed && <CheckCircle size={18} className="text-white" />}
                       </div>
                       {index < statusTimeline.length - 1 && (
-                        <div className={`w-1 h-8 mt-2 ${item.completed ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+                        <div className={`w-1 h-10 mt-2 ${item.completed ? 'bg-emerald-600' : 'bg-gray-300'}`}></div>
                       )}
                     </div>
                     <div className="pb-4">
@@ -159,7 +174,7 @@ export default function TrackingPage() {
                       </p>
                       {item.completed && (
                         <p className="text-sm text-gray-600 mt-1">
-                          {new Date().toLocaleDateString()} at {new Date().toLocaleTimeString()}
+                          {new Date().toLocaleDateString()} · {new Date().toLocaleTimeString()}
                         </p>
                       )}
                     </div>
@@ -169,13 +184,13 @@ export default function TrackingPage() {
             </div>
 
             {/* Sender & Receiver Details */}
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-white  border border-gray-200 p-6 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-4">Sender</h4>
                 <p className="text-sm font-medium text-gray-900">{shipment.sender?.full_name}</p>
                 <p className="text-sm text-gray-600">{shipment.sender?.phone_number}</p>
               </div>
-              <div className="bg-white  border border-gray-200 p-6 shadow-sm">
+              <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-4">Receiver</h4>
                 <p className="text-sm font-medium text-gray-900">{shipment.receiver?.full_name}</p>
                 <p className="text-sm text-gray-600">{shipment.receiver?.phone_number}</p>
@@ -183,7 +198,7 @@ export default function TrackingPage() {
             </div>
 
             {/* Package Details */}
-            <div className="bg-white  border border-gray-200 p-6 shadow-sm">
+            <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
               <h4 className="font-semibold text-gray-900 mb-4">Package Details</h4>
               <div className="space-y-3">
                 <div className="flex justify-between">
@@ -207,17 +222,17 @@ export default function TrackingPage() {
 
             {/* Photos */}
             {shipment.photos && shipment.photos.length > 0 && (
-              <div className="bg-white  border border-gray-200 p-6 shadow-sm">
+              <div className="bg-white border border-gray-200 p-6 rounded-lg shadow-sm">
                 <h4 className="font-semibold text-gray-900 mb-4">Photos</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {shipment.photos.map((photo: any) => (
-                    <div key={photo.photo_id}>
+                    <div key={photo.photo_id} className="overflow-hidden rounded">
                       <img 
                         src={photo.image_url} 
                         alt={photo.stage}
-                        className="w-full h-48 object-cover rounded border border-gray-200"
+                        className="w-full h-40 md:h-48 object-cover rounded border border-gray-200"
                       />
-                      <p className="text-xs text-gray-600 mt-2 capitalize">{photo.stage} - {new Date(photo.captured_at).toLocaleDateString()}</p>
+                      <p className="text-xs text-gray-600 mt-2 capitalize">{photo.stage} · {new Date(photo.captured_at).toLocaleDateString()}</p>
                     </div>
                   ))}
                 </div>

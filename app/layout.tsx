@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Ntigi Shipping - Courier Management System",
@@ -14,7 +15,9 @@ export default function RootLayout({
   return (
     <html lang="en" style={{ fontFamily: "'Quicksand', sans-serif" }}>
       <body className="antialiased" style={{ fontFamily: "'Quicksand', sans-serif" }}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

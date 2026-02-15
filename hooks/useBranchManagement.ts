@@ -27,11 +27,11 @@ export const useBranchManagement = (agencyId?: string) => {
       const newBranch = await branchService.createBranch({
         stop_id: stopId,
         agency_id: agencyId || 'default-agency',
-        stop_name: branchData.branchName,
+        stop_name: branchData.branchName || branchData.stop_name,
         city: branchData.city,
-        latitude: 0,
-        longitude: 0,
-        printer_type: (branchData.printerType || 'THERMAL_58MM') as 'THERMAL_58MM' | 'THERMAL_80MM'
+        latitude: branchData.latitude || 0,
+        longitude: branchData.longitude || 0,
+        printer_type: (branchData.printerType || branchData.printer_type || 'THERMAL_58MM') as 'THERMAL_58MM' | 'THERMAL_80MM'
       });
       setBranches([newBranch, ...branches]);
       return newBranch;
@@ -43,9 +43,38 @@ export const useBranchManagement = (agencyId?: string) => {
     }
   };
 
+  const updateBranch = async (branchId: string, branchData: any) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const updated = await branchService.updateBranch(branchId, branchData);
+      setBranches(branches.map(b => b.stop_id === branchId ? updated : b));
+      return updated;
+    } catch (err: any) {
+      setError(err.message || 'Failed to update branch');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteBranch = async (branchId: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      await branchService.deleteBranch(branchId);
+      setBranches(branches.filter(b => b.stop_id !== branchId));
+    } catch (err: any) {
+      setError(err.message || 'Failed to delete branch');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchBranches();
   }, [agencyId]);
 
-  return { branches, loading, error, addBranch, fetchBranches };
+  return { branches, loading, error, addBranch, updateBranch, deleteBranch, fetchBranches };
 };

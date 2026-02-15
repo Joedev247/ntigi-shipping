@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { User, Bicycle, Car, Truck } from 'phosphor-react';
+import { User, Bicycle, Car, Truck, Image as ImageIcon } from 'phosphor-react';
 import { FormInput, FormSelect } from '@/components/Form';
 import { Alert } from '@/components/Alert';
 import { Button } from '@/components/Button';
@@ -152,14 +152,14 @@ export const FleetForm: React.FC<FleetFormProps> = ({ onClose, onSubmit }) => {
 
       {/* Vehicle Photo Section */}
       <div className="flex justify-center">
-        <div className="relative">
-          <div className="w-32 h-32 bg-gradient-to-br from-amber-100 to-amber-50  flex items-center justify-center overflow-hidden border-4 border-amber-200">
+        <div className="relative w-full">
+          <div className="w-full h-48 bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center overflow-hidden border border-amber-200">
             {imagePreview ? (
               <img src={imagePreview} alt="Vehicle" className="w-full h-full object-cover" />
             ) : (
-              <div className="text-center">
-                <div className="text-4xl mb-2">🚗</div>
-                <p className="text-xs text-amber-600 font-medium">Click to upload</p>
+              <div className="text-center flex flex-col items-center gap-2">
+                <ImageIcon size={48} weight="duotone" className="text-amber-600" />
+                <p className="text-sm text-amber-600 font-medium">Click to upload vehicle image</p>
               </div>
             )}
             <input

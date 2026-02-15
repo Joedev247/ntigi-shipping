@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { User, Image as ImageIcon } from 'phosphor-react';
 import { FormInput, FormSelect, FormTextarea } from '@/components/Form';
 import { Alert } from '@/components/Alert';
 import { Button } from '@/components/Button';
@@ -167,14 +168,14 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onClose, onSubmit })
 
       {/* Profile Photo Section */}
       <div className="flex justify-center">
-        <div className="relative">
-          <div className="w-32 h-32 bg-gradient-to-br from-green-100 to-green-50 rounded-full flex items-center justify-center overflow-hidden border-4 border-green-200">
+        <div className="relative w-full">
+          <div className="w-full h-48 bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center overflow-hidden border border-green-200">
             {imagePreview ? (
               <img src={imagePreview} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <div className="text-center">
-                <div className="text-4xl text-green-400 mb-2">📷</div>
-                <p className="text-xs text-green-600 font-medium">Click to upload</p>
+              <div className="text-center flex flex-col items-center gap-2">
+                <ImageIcon size={48} weight="duotone" className="text-green-600" />
+                <p className="text-sm text-green-600 font-medium">Click to upload customer image</p>
               </div>
             )}
             <input

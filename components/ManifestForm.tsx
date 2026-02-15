@@ -128,7 +128,7 @@ export const ManifestForm: React.FC<ManifestFormProps> = ({ onClose, onSuccess }
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Section 1: Trip Information */}
-        <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <div className="bg-blue-50 p-4  border border-blue-200">
           <div className="flex items-center gap-2 mb-4">
             <Truck size={20} className="text-blue-600" />
             <h3 className="font-semibold text-gray-800">Trip Information</h3>
@@ -144,7 +144,7 @@ export const ManifestForm: React.FC<ManifestFormProps> = ({ onClose, onSuccess }
         </div>
 
         {/* Section 2: Vehicle & Driver Assignment */}
-        <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+        <div className="bg-green-50 p-4  border border-green-200">
           <div className="flex items-center gap-2 mb-4">
             <Package size={20} className="text-green-600" />
             <h3 className="font-semibold text-gray-800">Vehicle & Driver Assignment</h3>
@@ -170,7 +170,7 @@ export const ManifestForm: React.FC<ManifestFormProps> = ({ onClose, onSuccess }
         </div>
 
         {/* Section 3: Route */}
-        <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
+        <div className="bg-purple-50 p-4  border border-purple-200">
           <div className="flex items-center gap-2 mb-4">
             <MapPin size={20} className="text-purple-600" />
             <h3 className="font-semibold text-gray-800">Route</h3>
@@ -196,7 +196,7 @@ export const ManifestForm: React.FC<ManifestFormProps> = ({ onClose, onSuccess }
         </div>
 
         {/* Section 4: Timeline */}
-        <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+        <div className="bg-amber-50 p-4  border border-amber-200">
           <div className="flex items-center gap-2 mb-4">
             <Clock size={20} className="text-amber-600" />
             <h3 className="font-semibold text-gray-800">Timeline</h3>
@@ -212,7 +212,7 @@ export const ManifestForm: React.FC<ManifestFormProps> = ({ onClose, onSuccess }
         </div>
 
         {/* Section 5: Additional Notes */}
-        <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div className="bg-gray-50 p-4  border border-gray-200">
           <h3 className="font-semibold text-gray-800 mb-4">Additional Notes</h3>
           <FormTextarea
             label="Trip Notes (optional)"
